@@ -4,551 +4,785 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linear Regression | Data Science Presentation</title>
-<meta name="description" content="An interactive educational presentation explaining linear regression, mathematics, statistics, evaluation metrics and real-world applications.">
+<meta name="description" content="Linear Regression in Machine Learning: introduction, mathematics, Python implementation, statistical analysis, visualizations and real-world applications.">
+<title>Linear Regression | Machine Learning Blog</title>
+
 <style>
 :root {
-  --bg: #08111f;
-  --panel: #101d30;
-  --panel2: #14243a;
-  --text: #edf4ff;
-  --muted: #a5b5ca;
-  --teal: #41e0c1;
-  --blue: #72a7ff;
-  --border: #263851;
+  --teal: #0d9488;
+  --dark-teal: #0f766e;
+  --mint: #e6fffa;
+  --ink: #20343b;
+  --muted: #62747b;
+  --bg: #f7fbfb;
+  --white: #ffffff;
+  --border: #dce9e9;
+  --blue: #2563eb;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 85px; }
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-  line-height: 1.7;
+  color: var(--ink);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.8;
 }
-a { color: var(--teal); text-decoration: none; }
-a:hover { text-decoration: underline; }
-button, input { font: inherit; }
-button { cursor: pointer; }
-nav {
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(8,17,31,.95);
+header {
+  background: white;
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(14px);
-  padding: 13px 5%;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 15px; flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-.brand { font-size: 17px; font-weight: 800; letter-spacing: .5px; }
-.brand span { color: var(--teal); }
-.navlinks { display: flex; gap: 17px; flex-wrap: wrap; font-size: 13px; }
-.navlinks a { color: var(--muted); }
-.navlinks a:hover { color: var(--teal); }
-.btn {
-  background: var(--teal); color: #07151b; border: 0;
-  border-radius: 8px; padding: 10px 15px; font-weight: 750;
+nav {
+  max-width: 1120px;
+  width: 92%;
+  margin: auto;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
-.btn.secondary {
-  background: var(--panel2); color: var(--text);
-  border: 1px solid var(--border);
-}
-main { width: min(1120px, 90%); margin: auto; }
-.hero { padding: 86px 0 60px; }
+.logo { font-size: 16px; font-weight: 850; letter-spacing: .4px; }
+.logo span { color: var(--teal); }
+nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
+nav a:hover { color: var(--teal); }
+.navlinks { display: flex; flex-wrap: wrap; gap: 17px; }
+main { max-width: 940px; width: 90%; margin: auto; }
+.hero { padding: 64px 0 45px; }
 .eyebrow {
-  color: var(--teal); font-size: 12px; font-weight: 800;
-  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dark-teal);
+  background: var(--mint);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
-h1 { font-size: clamp(42px, 7vw, 76px); line-height: 1.08; margin: 18px 0; letter-spacing: -2px; }
+h1 {
+  font-size: clamp(36px, 6vw, 59px);
+  line-height: 1.18;
+  letter-spacing: -1.5px;
+  margin: 20px 0 12px;
+}
 h1 span { color: var(--teal); }
-h2 { font-size: clamp(27px, 4vw, 38px); line-height: 1.2; margin: 0 0 15px; }
-h3 { font-size: 18px; margin-top: 0; }
-p { color: var(--muted); }
-.hero p { max-width: 700px; font-size: 18px; }
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 25px; }
-.section { padding: 65px 0; border-top: 1px solid var(--border); }
-.section-intro { max-width: 760px; margin-bottom: 28px; }
-.kicker { color: var(--teal); font-size: 12px; font-weight: 800; letter-spacing: 1.7px; }
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 17px; }
-.grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
-.card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 15px; padding: 23px; min-width: 0;
+h2 { font-size: clamp(25px, 4vw, 34px); line-height: 1.3; margin: 0 0 14px; }
+h3 { font-size: 19px; line-height: 1.4; margin-top: 0; }
+p { color: var(--muted); margin: 12px 0; }
+.hero p { max-width: 780px; font-size: 17px; }
+.meta { font-size: 12px; color: var(--muted); margin-top: 24px; }
+.section {
+  padding: 43px 0;
+  border-top: 1px solid var(--border);
 }
-.card p:last-child { margin-bottom: 0; }
-.metric { font-size: 32px; font-weight: 800; color: var(--teal); }
-.small { font-size: 13px; color: var(--muted); }
+.section-head { margin-bottom: 23px; }
+.number {
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 1.5px;
+  margin-bottom: 7px;
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 22px;
+  margin: 16px 0;
+  min-width: 0;
+}
+.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
 .formula {
-  padding: 18px; background: #081724; border: 1px solid #254559;
-  border-radius: 10px; overflow-wrap: anywhere; margin: 14px 0;
-  color: var(--teal); font-size: clamp(16px, 2.5vw, 23px);
-  font-family: "Courier New", monospace; text-align: center;
+  text-align: center;
+  background: #effbf8;
+  color: #08786f;
+  border: 1px solid #cceee7;
+  border-radius: 9px;
+  padding: 16px;
+  margin: 14px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  overflow-wrap: anywhere;
 }
 .note {
-  padding: 15px 18px; border-left: 3px solid var(--teal);
-  background: #0e2630; border-radius: 0 8px 8px 0;
+  background: #effbf8;
+  border-left: 4px solid var(--teal);
+  border-radius: 0 9px 9px 0;
+  padding: 16px 18px;
+  margin: 18px 0;
 }
-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-th { color: var(--teal); font-weight: 700; }
+.note strong { color: var(--dark-teal); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--border); }
+th { color: var(--dark-teal); background: #effbf8; }
 td { color: var(--muted); }
 .table-wrap { overflow-x: auto; }
+pre {
+  margin: 0;
+  padding: 20px;
+  background: #122b31;
+  color: #e5f8f5;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre;
+  tab-size: 4;
+}
+pre code { font-family: Consolas, "Courier New", monospace; }
+.code-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 12px;
+  background: var(--teal);
+  color: white;
+  font-weight: 700;
+}
+button:hover { background: var(--dark-teal); }
 canvas {
-  width: 100%; height: 320px; display: block;
-  background: #091522; border: 1px solid var(--border); border-radius: 10px;
+  width: 100%;
+  height: 320px;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
 }
-input[type=range] { width: 100%; accent-color: var(--teal); }
-input[type=number] {
-  background: #081522; color: var(--text); border: 1px solid var(--border);
-  border-radius: 8px; padding: 11px; width: 100%; margin: 8px 0 15px;
+.metric {
+  color: var(--dark-teal);
+  font-size: 28px;
+  font-weight: 850;
 }
-label { color: var(--muted); font-size: 14px; }
-.pill {
-  display: inline-block; border: 1px solid var(--border);
-  border-radius: 30px; padding: 5px 11px; font-size: 12px;
-  color: var(--muted); margin: 4px 4px 4px 0;
-}
-.step {
-  border-left: 2px solid var(--teal); padding: 2px 0 20px 20px;
-  margin-left: 7px;
-}
-.step:last-child { padding-bottom: 0; }
+.small { font-size: 12px; }
+ul li, ol li { color: var(--muted); padding: 3px 0; }
 footer {
-  border-top: 1px solid var(--border); padding: 30px 5%;
-  text-align: center; color: var(--muted); font-size: 13px;
+  border-top: 1px solid var(--border);
+  background: white;
+  padding: 27px 5%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
 }
-#slideCounter { color: var(--teal); font-size: 13px; }
-body.present nav { position: relative; }
-body.present main { width: min(1000px, 90%); }
-body.present .hero { min-height: 70vh; display: flex; flex-direction: column; justify-content: center; }
-body.present .section { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; }
-body.present .navlinks { display: none; }
-@media(max-width:760px) {
-  .grid, .grid.two { grid-template-columns: 1fr; }
-  .hero { padding-top: 55px; }
-  .navlinks { gap: 10px; }
-  h1 { letter-spacing: -1px; }
-  .section { padding: 45px 0; }
+a { color: var(--dark-teal); }
+@media(max-width:700px) {
+  .grid { grid-template-columns: 1fr; }
+  .navlinks { gap: 10px; padding-bottom: 12px; }
+  nav { padding-top: 12px; }
+  .hero { padding-top: 43px; }
+  .section { padding: 32px 0; }
+  .card { padding: 16px; }
+  pre { font-size: 12px; padding: 14px; }
 }
 @media print {
-  nav, .hero-actions, .interactive-only, footer { display: none !important; }
-  body { background: white; color: #111; }
-  p, td, label { color: #333; }
-  .card, .formula { background: white; border-color: #bbb; color: #111; break-inside: avoid; }
-  .section { break-inside: avoid; padding: 25px 0; }
-  h1 span, .metric, .kicker, th { color: #087d70; }
+  header, button { display: none !important; }
+  body { background: white; }
+  .card { break-inside: avoid; }
+  .section { break-inside: auto; }
 }
 </style>
 </head>
+
 <body>
+<header>
 <nav>
-  <div class="brand">DATA<span>SCIENCE</span> / LAB</div>
+  <div class="logo">ML<span> JOURNAL</span></div>
   <div class="navlinks">
-    <a href="#overview">Overview</a>
-    <a href="#maths">Mathematics</a>
-    <a href="#statistics">Statistics</a>
-    <a href="#example">Case Study</a>
+    <a href="#introduction">Introduction</a>
+    <a href="#description">Description</a>
+    <a href="#mathematics">Mathematics</a>
+    <a href="#python">Python</a>
+    <a href="#graphs">Graphs</a>
     <a href="#applications">Applications</a>
-    <a href="#limitations">Limitations</a>
+    <a href="#conclusion">Conclusion</a>
   </div>
-  <button class="btn" id="presentBtn" onclick="togglePresentation()">Presentation Mode</button>
 </nav>
+</header>
 
 <main>
-<section class="hero" id="top">
-  <div class="eyebrow">Machine Learning · Supervised Learning · Regression</div>
-  <h1>Understanding<br><span>Linear Regression.</span></h1>
+<!-- 1. INTRODUCTION -->
+<article>
+<section class="hero" id="introduction">
+  <span class="eyebrow">MACHINE LEARNING · SUPERVISED LEARNING</span>
+  <h1>Linear Regression in <span>Machine Learning</span></h1>
   <p>
-    From mathematical foundations to real-world predictions:
-    a practical guide to one of the most widely used techniques
-    in statistics, machine learning and business analytics.
+    Linear regression is a fundamental statistical and machine-learning
+    technique used to understand relationships between variables and
+    predict numerical outcomes. It helps transform observed data into
+    interpretable mathematical models.
   </p>
-  <div class="hero-actions">
-    <a class="btn" href="#overview">Explore the concept ↓</a>
-    <button class="btn secondary" onclick="window.print()">Print / Save as PDF</button>
-    <button class="btn secondary" onclick="togglePresentation()">Start presentation</button>
+  <div class="meta">
+    TOPIC: MACHINE LEARNING &nbsp; · &nbsp;
+    METHOD: SUPERVISED LEARNING &nbsp; · &nbsp;
+    TASK: NUMERICAL PREDICTION
   </div>
-  <div style="margin-top:25px">
-    <span class="pill">Mathematics</span>
-    <span class="pill">Statistical Analysis</span>
-    <span class="pill">Prediction</span>
-    <span class="pill">Business Applications</span>
-  </div>
-  <p class="small" style="margin-top:30px">
-    EDUCATIONAL PROJECT · Prepared for classroom presentation
-  </p>
 </section>
 
-<section class="section" id="overview">
-  <div class="section-intro">
-    <div class="kicker">01 / INTRODUCTION</div>
+<!-- 2. DESCRIPTION -->
+<section class="section" id="description">
+  <div class="section-head">
+    <div class="number">01 / DESCRIPTION</div>
     <h2>What is Linear Regression?</h2>
-    <p>
-      Linear regression is a statistical and machine-learning method
-      used to estimate the relationship between a dependent variable
-      and one or more independent variables. It fits a line that
-      minimises the sum of squared prediction errors in ordinary
-      least-squares regression.
-    </p>
   </div>
-  <div class="grid">
-    <article class="card">
-      <div class="metric">01</div>
-      <h3>Understand</h3>
-      <p>Identify how an input variable is associated with an outcome.</p>
-    </article>
-    <article class="card">
-      <div class="metric">02</div>
-      <h3>Estimate</h3>
-      <p>Fit a mathematical equation to observed data.</p>
-    </article>
-    <article class="card">
-      <div class="metric">03</div>
-      <h3>Predict</h3>
-      <p>Estimate an outcome for new inputs within a sensible range.</p>
-    </article>
-  </div>
-  <div class="note" style="margin-top:20px">
-    <strong>Key idea:</strong> A fitted line describes a pattern in
-    observed data. It does not automatically prove that one variable
-    causes another.
-  </div>
-</section>
+  <p>
+    Linear regression is a supervised learning algorithm that learns
+    a relationship between one or more input variables and a numerical
+    target variable. It estimates a line or linear equation that best
+    represents the observed relationship in the training data.
+  </p>
+  <p>
+    For example, a model can study the relationship between the number
+    of hours a student studies and their examination marks. After
+    learning from existing observations, it can estimate marks for
+    another number of study hours.
+  </p>
 
-<section class="section" id="maths">
-  <div class="section-intro">
-    <div class="kicker">02 / MATHEMATICAL FOUNDATION</div>
-    <h2>The mathematics behind the model</h2>
-    <p>Simple linear regression uses one input variable to estimate one numerical output.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Independent variable (X)</h3>
+      <p>The input used to estimate an outcome. Example: study hours.</p>
+    </div>
+    <div class="card">
+      <h3>Dependent variable (Y)</h3>
+      <p>The numerical outcome being predicted. Example: exam marks.</p>
+    </div>
   </div>
-  <div class="card">
-    <h3>The regression equation</h3>
-    <div class="formula">ŷ = b₀ + b₁x</div>
+
+  <div class="note">
+    <strong>Main objective:</strong> Find a suitable linear equation
+    that minimises the sum of squared differences between actual and
+    predicted values on the training data.
+  </div>
+
+  <h3>Types of Linear Regression</h3>
+  <div class="table-wrap">
     <table>
-      <tr><th>Symbol</th><th>Meaning</th></tr>
-      <tr><td>x</td><td>Independent or input variable</td></tr>
-      <tr><td>ŷ</td><td>Predicted value of the output</td></tr>
-      <tr><td>b₀</td><td>Intercept: predicted output when x = 0</td></tr>
-      <tr><td>b₁</td><td>Slope: predicted change in output for a one-unit increase in x</td></tr>
+      <tr><th>Type</th><th>Description</th><th>Example</th></tr>
+      <tr><td>Simple Linear Regression</td><td>Uses one input variable.</td><td>Study hours and marks.</td></tr>
+      <tr><td>Multiple Linear Regression</td><td>Uses two or more input variables.</td><td>House price from area, age and location features.</td></tr>
     </table>
   </div>
-  <div class="grid two" style="margin-top:17px">
-    <article class="card">
-      <h3>Calculating the slope</h3>
-      <div class="formula">b₁ = Σ(x − x̄)(y − ȳ) / Σ(x − x̄)²</div>
-      <p>The slope measures the direction and size of the fitted linear relationship.</p>
-    </article>
-    <article class="card">
-      <h3>Calculating the intercept</h3>
-      <div class="formula">b₀ = ȳ − b₁x̄</div>
-      <p>The intercept makes the fitted line pass through the point of the sample means, (x̄, ȳ).</p>
-    </article>
-  </div>
-  <div class="card" style="margin-top:17px">
-    <h3>How does the model choose its line?</h3>
-    <div class="formula">SSE = Σ(yᵢ − ŷᵢ)²</div>
-    <p>
-      Ordinary least squares selects the line that minimises the sum
-      of squared residuals. A residual is the observed value minus
-      the predicted value.
-    </p>
-    <div class="formula">Residual = yᵢ − ŷᵢ</div>
-  </div>
 </section>
 
-<section class="section" id="statistics">
-  <div class="section-intro">
-    <div class="kicker">03 / STATISTICS & EVALUATION</div>
-    <h2>How do we evaluate a regression model?</h2>
-    <p>Model evaluation helps us understand fit, error and the strength of the observed relationship.</p>
+<!-- 3. MATHEMATICS -->
+<section class="section" id="mathematics">
+  <div class="section-head">
+    <div class="number">02 / MATHEMATICAL FORMULA</div>
+    <h2>Mathematical Foundation</h2>
   </div>
-  <div class="grid two">
-    <article class="card">
-      <h3>Descriptive statistics</h3>
-      <p><strong>Mean:</strong> Average of the observed values.</p>
+
+  <h3>3.1 Regression equation</h3>
+  <div class="formula">ŷ = b₀ + b₁x</div>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Symbol</th><th>Meaning</th></tr>
+      <tr><td>ŷ</td><td>Predicted value of the dependent variable.</td></tr>
+      <tr><td>x</td><td>Independent variable.</td></tr>
+      <tr><td>b₀</td><td>Intercept of the fitted line.</td></tr>
+      <tr><td>b₁</td><td>Slope of the fitted line.</td></tr>
+    </table>
+  </div>
+
+  <h3>3.2 Calculation of the slope</h3>
+  <div class="formula">
+    b₁ = Σ[(xᵢ − x̄)(yᵢ − ȳ)] / Σ[(xᵢ − x̄)²]
+  </div>
+  <p>
+    The slope describes the predicted change in Y for a one-unit
+    increase in X. Its interpretation depends on the units of the variables.
+  </p>
+
+  <h3>3.3 Calculation of the intercept</h3>
+  <div class="formula">b₀ = ȳ − b₁x̄</div>
+  <p>
+    The intercept is the fitted value of Y when X equals zero.
+    Depending on the data, zero may not be a meaningful input value.
+  </p>
+
+  <h3>3.4 Least Squares Method</h3>
+  <div class="formula">SSE = Σ(yᵢ − ŷᵢ)²</div>
+  <p>
+    Ordinary least squares finds the coefficients that minimise the
+    sum of squared residuals. A residual is the difference between an
+    observed value and its fitted prediction.
+  </p>
+
+  <h3>3.5 Statistical measures</h3>
+  <div class="grid">
+    <div class="card">
+      <h3>Mean</h3>
       <div class="formula">x̄ = Σxᵢ / n</div>
-      <p><strong>Variance:</strong> Measures how spread out observations are.</p>
+      <p>The arithmetic average of the observations.</p>
+    </div>
+    <div class="card">
+      <h3>Variance</h3>
       <div class="formula">s² = Σ(xᵢ − x̄)² / (n − 1)</div>
-      <p><strong>Standard deviation:</strong> Square root of variance.</p>
-    </article>
-    <article class="card">
-      <h3>Correlation</h3>
-      <div class="formula">r = Cov(X,Y) / (sₓsᵧ)</div>
-      <p>
-        Pearson's correlation measures the strength and direction
-        of a linear association. It ranges from −1 to +1.
-      </p>
-      <p class="small">Correlation alone does not establish causation.</p>
-    </article>
-    <article class="card">
+      <p>The sample variance measures the spread of observations.</p>
+    </div>
+    <div class="card">
       <h3>Coefficient of determination</h3>
       <div class="formula">R² = 1 − SSE / SST</div>
-      <p>Describes the proportion of outcome variation explained by the fitted model on the evaluated data, when the usual intercept model and definitions apply.</p>
-    </article>
-    <article class="card">
-      <h3>Prediction error</h3>
-      <div class="formula">MAE = mean(|y − ŷ|)</div>
-      <div class="formula">MSE = mean((y − ŷ)²)</div>
-      <div class="formula">RMSE = √MSE</div>
-      <p>Smaller errors generally indicate closer predictions on the evaluated dataset. Compare metrics on the same outcome scale and test set.</p>
-    </article>
-  </div>
-  <div class="note" style="margin-top:18px">
-    <strong>Important distinction:</strong> A high R² does not guarantee
-    reliable future predictions. Check residual patterns, outliers,
-    assumptions and performance on unseen data.
-  </div>
-</section>
-
-<section class="section" id="example">
-  <div class="section-intro">
-    <div class="kicker">04 / PRACTICAL CASE STUDY</div>
-    <h2>Can study hours predict exam marks?</h2>
-    <p>
-      Consider this illustrative dataset. It demonstrates how a
-      regression equation can turn a simple pattern into an estimate.
-      These are example values, not actual student records.
-    </p>
-  </div>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Student</th><th>Study hours (x)</th><th>Exam marks (y)</th></tr></thead>
-        <tbody>
-          <tr><td>A</td><td>1</td><td>35</td></tr>
-          <tr><td>B</td><td>2</td><td>40</td></tr>
-          <tr><td>C</td><td>3</td><td>50</td></tr>
-          <tr><td>D</td><td>4</td><td>55</td></tr>
-          <tr><td>E</td><td>5</td><td>65</td></tr>
-        </tbody>
-      </table>
+      <p>Measures how much variation is explained by the fitted model under the usual intercept-model definition.</p>
     </div>
-    <h3>Step 1: Calculate the means</h3>
-    <div class="formula">x̄ = (1 + 2 + 3 + 4 + 5) / 5 = 3</div>
-    <div class="formula">ȳ = (35 + 40 + 50 + 55 + 65) / 5 = 49</div>
-    <h3>Step 2: Calculate the slope</h3>
-    <div class="formula">Σ(x − x̄)(y − ȳ) = 75</div>
-    <div class="formula">Σ(x − x̄)² = 10</div>
-    <div class="formula">b₁ = 75 / 10 = 7.5</div>
-    <h3>Step 3: Calculate the intercept</h3>
-    <div class="formula">b₀ = 49 − (7.5 × 3) = 26.5</div>
-    <h3>Step 4: Write the final regression equation</h3>
-    <div class="formula">ŷ = 26.5 + 7.5x</div>
-    <h3>Step 5: Predict marks for 6 study hours</h3>
-    <div class="formula">ŷ = 26.5 + (7.5 × 6) = 71.5</div>
-    <div class="note">
-      <strong>Interpretation:</strong> The model estimates 71.5 marks
-      for six study hours. This is a mathematical estimate, not a
-      guarantee of a student's actual marks.
+    <div class="card">
+      <h3>Root Mean Squared Error</h3>
+      <div class="formula">RMSE = √[Σ(yᵢ − ŷᵢ)² / n]</div>
+      <p>Measures typical prediction error while giving larger errors more weight.</p>
     </div>
   </div>
+</section>
 
-  <div class="grid two" style="margin-top:20px">
-    <article class="card">
-      <h3>Regression graph</h3>
-      <p class="small">Observed exam marks and the least-squares line.</p>
-      <canvas id="regressionChart" aria-label="Scatter plot of study hours and marks with fitted regression line"></canvas>
-      <p class="small">X-axis: study hours · Y-axis: exam marks</p>
-    </article>
-    <article class="card interactive-only">
-      <h3>Try your own prediction</h3>
-      <label for="hours">Study hours</label>
-      <input id="hours" type="range" min="0" max="10" value="6" step="0.5" oninput="updatePrediction()">
-      <div class="formula" id="hoursLabel">6 hours</div>
-      <p>Estimated marks using the example equation:</p>
-      <div class="metric" id="prediction">71.5</div>
-      <p class="small">Equation: ŷ = 26.5 + 7.5x</p>
-      <p class="small">The example is fitted to five observations. Predictions outside the observed range are extrapolations and may be unreliable.</p>
-    </article>
+<!-- 4. PYTHON CODE -->
+<section class="section" id="python">
+  <div class="section-head">
+    <div class="number">03 / PYTHON IMPLEMENTATION</div>
+    <h2>Implementing Linear Regression with Python</h2>
+  </div>
+  <p>
+    This practical example uses study hours to estimate examination
+    marks. The dataset is included in the code, so a separate CSV
+    file is not required.
+  </p>
+
+  <h3>Libraries required</h3>
+  <pre><code>pip install numpy pandas matplotlib scikit-learn</code></pre>
+
+  <h3 style="margin-top:25px">Complete Python program</h3>
+  <div class="code-label">
+    <span>linear_regression.py</span>
+    <button onclick="copyPython()">Copy Python code</button>
+  </div>
+  <pre><code id="pythonCode">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score
+)
+
+# 1. Create the sample dataset
+data = {
+    "Study_Hours": [1, 2, 3, 4, 5],
+    "Exam_Marks": [35, 40, 50, 55, 65]
+}
+
+df = pd.DataFrame(data)
+
+# 2. Separate input and target variables
+X = df[["Study_Hours"]]
+y = df["Exam_Marks"]
+
+# 3. Create and train the model
+model = LinearRegression()
+model.fit(X, y)
+
+# 4. Predict values for the dataset
+y_pred = model.predict(X)
+
+# 5. Display the regression equation
+print("Dataset:")
+print(df)
+
+print("\nSlope:", model.coef_[0])
+print("Intercept:", model.intercept_)
+print(
+    f"Regression equation: Marks = "
+    f"{model.intercept_:.2f} + "
+    f"{model.coef_[0]:.2f} * Hours"
+)
+
+# 6. Calculate descriptive statistics
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+# 7. Evaluate the fitted model
+print("\nModel Evaluation:")
+print("MAE:", mean_absolute_error(y, y_pred))
+print("MSE:", mean_squared_error(y, y_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y, y_pred)))
+print("R-squared:", r2_score(y, y_pred))
+
+# 8. Predict marks for 6 study hours
+new_data = pd.DataFrame({"Study_Hours": [6]})
+prediction = model.predict(new_data)[0]
+print("\nPredicted marks for 6 hours:", prediction)
+
+# 9. Plot actual observations and regression line
+plt.figure(figsize=(8, 5))
+plt.scatter(
+    X["Study_Hours"], y,
+    color="teal", s=75, label="Actual marks"
+)
+plt.plot(
+    X["Study_Hours"], y_pred,
+    color="darkorange", linewidth=2.5,
+    label="Regression line"
+)
+plt.xlabel("Study Hours")
+plt.ylabel("Exam Marks")
+plt.title("Linear Regression: Study Hours vs Exam Marks")
+plt.legend()
+plt.grid(alpha=0.25)
+plt.tight_layout()
+plt.show()
+
+# 10. Plot actual versus predicted values
+plt.figure(figsize=(7, 5))
+plt.scatter(y, y_pred, color="teal", s=75)
+lower = min(y.min(), y_pred.min())
+upper = max(y.max(), y_pred.max())
+plt.plot(
+    [lower, upper], [lower, upper],
+    linestyle="--", color="darkorange",
+    label="Perfect prediction"
+)
+plt.xlabel("Actual Marks")
+plt.ylabel("Predicted Marks")
+plt.title("Actual vs Predicted Values")
+plt.legend()
+plt.grid(alpha=0.25)
+plt.tight_layout()
+plt.show()</code></pre>
+
+  <h3 style="margin-top:25px">Explanation of the program</h3>
+  <ol>
+    <li><strong>Import libraries:</strong> NumPy handles numerical calculations, Pandas manages tabular data, Matplotlib creates graphs, and Scikit-learn trains the model.</li>
+    <li><strong>Create the dataset:</strong> Study hours are the input and examination marks are the target.</li>
+    <li><strong>Train the model:</strong> <code>LinearRegression()</code> creates the model, while <code>fit()</code> estimates the coefficients.</li>
+    <li><strong>Generate predictions:</strong> <code>predict()</code> calculates fitted values from the input data.</li>
+    <li><strong>Evaluate performance:</strong> MAE, MSE, RMSE and R² summarise the errors and fitted model.</li>
+    <li><strong>Visualise the results:</strong> The first graph shows the fitted line; the second compares actual and predicted values.</li>
+  </ol>
+
+  <div class="note">
+    <strong>Important:</strong> This small dataset is intended for
+    demonstration. The reported metrics are calculated on the same
+    data used to fit the model, so they do not measure performance on
+    unseen observations. For real projects, use a suitable train/test
+    split or cross-validation.
   </div>
 </section>
 
-<section class="section" id="workflow">
-  <div class="section-intro">
-    <div class="kicker">05 / MACHINE-LEARNING WORKFLOW</div>
-    <h2>From raw data to prediction</h2>
-    <p>A reliable analysis requires more than simply drawing a line.</p>
+<!-- 5. GRAPHS AND STATISTICS -->
+<section class="section" id="graphs">
+  <div class="section-head">
+    <div class="number">04 / DATA VISUALISATION</div>
+    <h2>Graphs and Statistical Analysis</h2>
   </div>
+
+  <h3>5.1 Sample dataset</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Student</th><th>Study hours (X)</th><th>Actual marks (Y)</th></tr>
+      <tr><td>A</td><td>1</td><td>35</td></tr>
+      <tr><td>B</td><td>2</td><td>40</td></tr>
+      <tr><td>C</td><td>3</td><td>50</td></tr>
+      <tr><td>D</td><td>4</td><td>55</td></tr>
+      <tr><td>E</td><td>5</td><td>65</td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin-top:25px">5.2 Scatter plot and line of best fit</h3>
+  <p>
+    The scatter plot shows the observed data points. The fitted line
+    summarises the linear relationship between study hours and marks.
+  </p>
   <div class="card">
-    <div class="step"><h3>1. Define the problem</h3><p>Choose a numerical outcome you want to estimate.</p></div>
-    <div class="step"><h3>2. Collect and clean data</h3><p>Handle missing values, inconsistent units and incorrect records.</p></div>
-    <div class="step"><h3>3. Explore the dataset</h3><p>Use summaries, scatter plots and correlations to understand patterns.</p></div>
-    <div class="step"><h3>4. Split the data</h3><p>Keep a test dataset separate to evaluate predictions on unseen observations.</p></div>
-    <div class="step"><h3>5. Train the model</h3><p>Estimate the regression coefficients using training data.</p></div>
-    <div class="step"><h3>6. Evaluate and interpret</h3><p>Review MAE, RMSE, R², residuals and the assumptions relevant to your task.</p></div>
+    <canvas id="regressionChart" aria-label="Scatter plot and fitted linear regression line"></canvas>
+    <p class="small">Illustrative dataset · X-axis: study hours · Y-axis: examination marks</p>
   </div>
-</section>
 
-<section class="section" id="applications">
-  <div class="section-intro">
-    <div class="kicker">06 / REAL-WORLD APPLICATIONS</div>
-    <h2>Where is linear regression used?</h2>
-    <p>It is especially useful when a numerical outcome has a meaningful approximately linear relationship with its predictors.</p>
+  <h3>5.3 Actual vs predicted values</h3>
+  <p>
+    Predicted values are calculated using the fitted equation.
+    The table below shows how the fitted model compares with the observations.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Study hours</th><th>Actual marks</th><th>Predicted marks</th><th>Residual</th></tr>
+      <tr><td>1</td><td>35</td><td>34.0</td><td>1.0</td></tr>
+      <tr><td>2</td><td>40</td><td>41.5</td><td>-1.5</td></tr>
+      <tr><td>3</td><td>50</td><td>49.0</td><td>1.0</td></tr>
+      <tr><td>4</td><td>55</td><td>56.5</td><td>-1.5</td></tr>
+      <tr><td>5</td><td>65</td><td>64.0</td><td>1.0</td></tr>
+    </table>
   </div>
+
+  <h3 style="margin-top:25px">5.4 Interpretation of statistics</h3>
   <div class="grid">
-    <article class="card">
-      <h3>Business & sales</h3>
-      <p>Estimate sales using advertising spend, pricing or historical trends.</p>
-    </article>
-    <article class="card">
-      <h3>Real estate</h3>
-      <p>Estimate house prices using area, location features and property characteristics.</p>
-    </article>
-    <article class="card">
-      <h3>Education</h3>
-      <p>Study the association between study time, attendance and examination results.</p>
-    </article>
-    <article class="card">
-      <h3>Healthcare research</h3>
-      <p>Analyse relationships between numerical measurements and clinical outcomes, with appropriate expert oversight.</p>
-    </article>
-    <article class="card">
-      <h3>Finance & operations</h3>
-      <p>Estimate costs, demand or numerical business indicators using relevant predictors.</p>
-    </article>
-    <article class="card">
-      <h3>Environmental analysis</h3>
-      <p>Explore trends in temperature, pollution measurements or energy consumption.</p>
-    </article>
+    <div class="card">
+      <div class="small">Slope</div>
+      <div class="metric">7.5</div>
+      <p>The fitted marks increase by 7.5 for each additional study hour.</p>
+    </div>
+    <div class="card">
+      <div class="small">Intercept</div>
+      <div class="metric">26.5</div>
+      <p>The fitted line estimates 26.5 marks at zero study hours; this is an extrapolated interpretation for this dataset.</p>
+    </div>
+    <div class="card">
+      <div class="small">R-squared</div>
+      <div class="metric">0.985</div>
+      <p>Approximately 98.5% of the observed variation is accounted for by this fitted line on the sample.</p>
+    </div>
+    <div class="card">
+      <div class="small">RMSE</div>
+      <div class="metric">1.304</div>
+      <p>The root mean squared fitted error is approximately 1.304 marks on this dataset.</p>
+    </div>
   </div>
-</section>
 
-<section class="section" id="limitations">
-  <div class="section-intro">
-    <div class="kicker">07 / CRITICAL THINKING</div>
-    <h2>Advantages and limitations</h2>
-  </div>
-  <div class="grid two">
-    <article class="card">
-      <h3>Advantages</h3>
-      <p>✓ Easy to understand and communicate.</p>
-      <p>✓ Fast to train on many datasets.</p>
-      <p>✓ Coefficients help explain fitted relationships.</p>
-      <p>✓ Provides a useful baseline for predictive modelling.</p>
-    </article>
-    <article class="card">
-      <h3>Limitations</h3>
-      <p>✕ May perform poorly for nonlinear patterns.</p>
-      <p>✕ Sensitive to influential outliers.</p>
-      <p>✕ Correlated predictors can make coefficients unstable.</p>
-      <p>✕ Extrapolation can be unreliable.</p>
-      <p>✕ Statistical assumptions matter for inference and uncertainty estimates.</p>
-    </article>
-  </div>
-  <div class="card" style="margin-top:18px">
-    <h3>Final conclusion</h3>
-    <p>
-      Linear regression connects mathematics, statistics and practical
-      prediction. By estimating a line of best fit, we can describe
-      relationships, quantify prediction errors and build a useful
-      starting point for data-driven decisions. Its value depends on
-      data quality, suitable assumptions and honest evaluation.
+  <h3 style="margin-top:25px">5.5 Interactive prediction calculator</h3>
+  <div class="card">
+    <label for="hours">Enter study hours (0 to 10)</label>
+    <input id="hours" type="range" min="0" max="10" value="6" step="0.5" style="width:100%;accent-color:#0d9488" oninput="calculatePrediction()">
+    <div class="formula" id="hoursLabel">Study hours = 6</div>
+    <div class="small">Predicted marks</div>
+    <div class="metric" id="predictedMarks">71.5</div>
+    <p id="predictionNote">
+      This is an estimate from the fitted equation, not a guarantee of actual marks.
     </p>
-    <div class="formula">Understand → Model → Evaluate → Interpret</div>
+  </div>
+
+  <div class="note">
+    <strong>Statistical conclusion:</strong> The example displays a
+    strong positive linear association. However, five observations
+    are not sufficient to establish a general rule about students.
+    More data and evaluation on unseen observations are needed for
+    a reliable real-world model.
   </div>
 </section>
 
-<section class="section" id="references">
-  <div class="section-intro">
-    <div class="kicker">08 / LEARNING RESOURCES</div>
-    <h2>Continue learning</h2>
-    <p>Use trusted documentation to extend this presentation into a practical machine-learning project.</p>
+<!-- 6. REAL-WORLD APPLICATIONS -->
+<section class="section" id="applications">
+  <div class="section-head">
+    <div class="number">05 / REAL-LIFE APPLICATIONS</div>
+    <h2>Applications of Linear Regression</h2>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>01. Real estate</h3>
+      <p>Estimate property prices from area, property age and other relevant features.</p>
+    </div>
+    <div class="card">
+      <h3>02. Business analytics</h3>
+      <p>Study sales patterns and estimate revenue based on advertising spend and other factors.</p>
+    </div>
+    <div class="card">
+      <h3>03. Education</h3>
+      <p>Analyse the association between study time and examination marks.</p>
+    </div>
+    <div class="card">
+      <h3>04. Finance</h3>
+      <p>Estimate costs, budgets and numerical financial outcomes from relevant predictors.</p>
+    </div>
+    <div class="card">
+      <h3>05. Healthcare research</h3>
+      <p>Study relationships between numerical measurements and outcomes using appropriate statistical methods.</p>
+    </div>
+    <div class="card">
+      <h3>06. Environment</h3>
+      <p>Analyse trends in energy consumption, pollution measurements and environmental indicators.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:27px">Example of a business use case</h3>
+  <div class="card">
+    <p>
+      A company wants to estimate monthly sales based on advertising
+      expenditure. It collects historical records, examines the
+      relationship between spending and sales, trains a regression
+      model and evaluates prediction errors on held-out data.
+    </p>
+    <p>
+      If the relationship is reasonably linear and the evaluation is
+      satisfactory, the model can help with planning. The result
+      remains an estimate, and other factors may influence actual sales.
+    </p>
+  </div>
+</section>
+
+<!-- 7. CONCLUSION -->
+<section class="section" id="conclusion">
+  <div class="section-head">
+    <div class="number">06 / CONCLUSION</div>
+    <h2>Conclusion</h2>
   </div>
   <div class="card">
-    <p><a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" rel="noopener">Scikit-learn — Linear Models</a></p>
-    <p><a href="https://www.itl.nist.gov/div898/handbook/" target="_blank" rel="noopener">NIST/SEMATECH — Statistical Methods Handbook</a></p>
-    <p><a href="https://www.khanacademy.org/math/statistics-probability" target="_blank" rel="noopener">Khan Academy — Statistics and Probability</a></p>
-    <p class="small">The numerical case study on this page is illustrative and was calculated for teaching purposes.</p>
+    <p>
+      Linear regression is a foundational technique in machine learning
+      that uses a linear equation to estimate numerical outcomes from
+      input variables. Its mathematical foundation includes the slope,
+      intercept and least-squares method.
+    </p>
+    <p>
+      Python libraries such as NumPy, Pandas, Matplotlib and
+      Scikit-learn make it possible to prepare data, train a model,
+      calculate statistical metrics and visualise results efficiently.
+    </p>
+    <p>
+      Linear regression is useful in business, education, finance,
+      real estate and environmental analysis. Reliable applications
+      require suitable data, checking assumptions, evaluating
+      predictions on unseen observations and interpreting results carefully.
+    </p>
+    <div class="formula">
+      Collect Data → Explore → Train → Evaluate → Interpret
+    </div>
   </div>
 </section>
+
+<!-- REFERENCES -->
+<section class="section" id="references">
+  <div class="section-head">
+    <div class="number">07 / REFERENCES</div>
+    <h2>Learning Resources</h2>
+  </div>
+  <div class="card">
+    <p><a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" rel="noopener">Scikit-learn: Linear Models</a></p>
+    <p><a href="https://pandas.pydata.org/docs/" target="_blank" rel="noopener">Pandas Documentation</a></p>
+    <p><a href="https://numpy.org/doc/" target="_blank" rel="noopener">NumPy Documentation</a></p>
+    <p><a href="https://matplotlib.org/stable/" target="_blank" rel="noopener">Matplotlib Documentation</a></p>
+    <p><a href="https://www.statlearning.com/" target="_blank" rel="noopener">An Introduction to Statistical Learning</a></p>
+  </div>
+</section>
+</article>
 </main>
 
 <footer>
-  <div>LINEAR REGRESSION · DATA SCIENCE PRESENTATION</div>
-  <div style="margin-top:6px">Created for educational use · Hosted with GitHub Pages</div>
-  <div style="margin-top:12px" id="slideCounter">Presentation mode: off</div>
-  <div class="interactive-only" style="margin-top:15px">
-    <button class="btn secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top ↑</button>
-  </div>
+  <strong style="color:#0f766e">ML JOURNAL</strong>
+  <div>Linear Regression in Machine Learning</div>
+  <div>Educational blog · Python · Statistics · Data Visualisation</div>
+  <div style="margin-top:10px"><a href="#introduction">Back to top ↑</a></div>
 </footer>
 
 <script>
-function updatePrediction() {
+function calculatePrediction() {
   const hours = Number(document.getElementById("hours").value);
   const marks = 26.5 + 7.5 * hours;
-  document.getElementById("hoursLabel").textContent = hours + " hours";
-  document.getElementById("prediction").textContent = marks.toFixed(1);
+  document.getElementById("hoursLabel").textContent =
+    "Study hours = " + hours;
+  document.getElementById("predictedMarks").textContent =
+    marks.toFixed(1);
+
+  const note = document.getElementById("predictionNote");
+  note.textContent = hours > 5
+    ? "This estimate is outside the observed study-hour range of 1–5. Extrapolations may be unreliable."
+    : "This is an estimate from the fitted equation, not a guarantee of actual marks.";
 }
 
-function drawChart() {
+function drawRegressionChart() {
   const canvas = document.getElementById("regressionChart");
   const ctx = canvas.getContext("2d");
   const rect = canvas.getBoundingClientRect();
+  if (!rect.width) return;
+
   const dpr = window.devicePixelRatio || 1;
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   ctx.scale(dpr, dpr);
 
-  const w = rect.width, h = rect.height;
-  const pad = {l:48, r:18, t:20, b:42};
-  const points = [
-    [1,35], [2,40], [3,50], [4,55], [5,65]
-  ];
-  const xMin=0, xMax=6, yMin=20, yMax=80;
-  const X = x => pad.l + (x-xMin)/(xMax-xMin)*(w-pad.l-pad.r);
-  const Y = y => h-pad.b-(y-yMin)/(yMax-yMin)*(h-pad.t-pad.b);
+  const w = rect.width;
+  const h = rect.height;
+  const pad = {left:48, right:18, top:20, bottom:42};
+  const X = x => pad.left + (x / 6) * (w - pad.left - pad.right);
+  const Y = y => h - pad.bottom - ((y - 20) / 60) * (h - pad.top - pad.bottom);
 
-  ctx.clearRect(0,0,w,h);
-  ctx.font = "11px Segoe UI, Arial";
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = "12px Segoe UI, Arial";
   ctx.lineWidth = 1;
-  ctx.strokeStyle = "#263851";
-  ctx.fillStyle = "#a5b5ca";
+  ctx.strokeStyle = "#e1ebeb";
+  ctx.fillStyle = "#62747b";
 
-  for(let y=20; y<=80; y+=10) {
-    ctx.beginPath(); ctx.moveTo(pad.l,Y(y)); ctx.lineTo(w-pad.r,Y(y)); ctx.stroke();
-    ctx.fillText(y, 10, Y(y)+4);
-  }
-  for(let x=0; x<=6; x++) {
-    ctx.beginPath(); ctx.moveTo(X(x),pad.t); ctx.lineTo(X(x),h-pad.b); ctx.stroke();
-    ctx.fillText(x, X(x)-3, h-20);
+  for (let y = 20; y <= 80; y += 10) {
+    ctx.beginPath();
+    ctx.moveTo(pad.left, Y(y));
+    ctx.lineTo(w - pad.right, Y(y));
+    ctx.stroke();
+    ctx.fillText(y, 10, Y(y) + 4);
   }
 
-  ctx.strokeStyle="#41e0c1"; ctx.lineWidth=2.5;
+  for (let x = 0; x <= 6; x++) {
+    ctx.beginPath();
+    ctx.moveTo(X(x), pad.top);
+    ctx.lineTo(X(x), h - pad.bottom);
+    ctx.stroke();
+    ctx.fillText(x, X(x) - 3, h - 18);
+  }
+
+  // Fitted regression line: y = 26.5 + 7.5x
   ctx.beginPath();
-  ctx.moveTo(X(0),Y(26.5));
-  ctx.lineTo(X(6),Y(71.5));
+  ctx.moveTo(X(0), Y(26.5));
+  ctx.lineTo(X(6), Y(71.5));
+  ctx.strokeStyle = "#0d9488";
+  ctx.lineWidth = 3;
   ctx.stroke();
 
+  const points = [[1,35],[2,40],[3,50],[4,55],[5,65]];
   points.forEach(([x,y]) => {
-    ctx.beginPath(); ctx.arc(X(x),Y(y),5,0,Math.PI*2);
-    ctx.fillStyle="#72a7ff"; ctx.fill();
-    ctx.strokeStyle="#edf4ff"; ctx.lineWidth=1; ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(X(x), Y(y), 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#2563eb";
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
   });
 
-  ctx.fillStyle="#a5b5ca";
-  ctx.fillText("Study hours", w/2-30, h-4);
+  ctx.fillStyle = "#62747b";
+  ctx.fillText("Study hours", w / 2 - 30, h - 3);
   ctx.save();
-  ctx.translate(14,h/2+25); ctx.rotate(-Math.PI/2);
-  ctx.fillText("Exam marks",0,0); ctx.restore();
+  ctx.translate(14, h / 2 + 24);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Exam marks", 0, 0);
+  ctx.restore();
+}
 
-  ctx.fillStyle="#41e0c1";
-  ctx.fillText("Fitted line",w-92,18);
-}
-function togglePresentation() {
-  document.body.classList.toggle("present");
-  const active = document.body.classList.contains("present");
-  document.getElementById("presentBtn").textContent =
-    active ? "Exit presentation" : "Presentation Mode";
-  document.getElementById("slideCounter").textContent =
-    active ? "Presentation mode: on · Scroll to move between sections · Press Esc to exit" :
-             "Presentation mode: off";
-}
-document.addEventListener("keydown", e => {
-  if(e.key === "Escape" && document.body.classList.contains("present")) {
-    togglePresentation();
+function copyPython() {
+  const code = document.getElementById("pythonCode").innerText;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(code)
+      .then(() => alert("Python code copied!"))
+      .catch(() => fallbackCopy(code));
+  } else {
+    fallbackCopy(code);
   }
+}
+
+function fallbackCopy(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  document.body.appendChild(area);
+  area.select();
+  try {
+    document.execCommand("copy");
+    alert("Python code copied!");
+  } catch (error) {
+    alert("Please select and copy the code manually.");
+  }
+  area.remove();
+}
+
+window.addEventListener("load", () => {
+  drawRegressionChart();
+  calculatePrediction();
 });
-window.addEventListener("resize", drawChart);
-window.addEventListener("load", () => { drawChart(); updatePrediction(); });
+window.addEventListener("resize", drawRegressionChart);
 </script>
 </body>
 </html>
